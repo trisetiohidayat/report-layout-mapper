@@ -68,6 +68,20 @@ Example:
 
 Do not blindly trust field suggestions. Verify the real field names on the target model.
 
+## Mapping Approval Before Coding
+
+Before creating or changing the Odoo report, show the user a mapping review and wait for confirmation unless they explicitly asked to proceed without confirmation.
+
+Include:
+
+- header/body fields: visual label, proposed Odoo expression/helper, sample value, `bbox_mm`, and text overflow rule;
+- table columns: printed header, proposed line field/helper, width in `mm`, max rows per page, and continuation behavior;
+- static assets: borders, logos, fixed headings, signature labels, and static image/CSS choice;
+- footer/signatures: source field or static value, page placement rule, totals/subtotals behavior;
+- unresolved items: unreadable OCR, `candidate_value`, uncertain field, or business rule not verifiable from code/data.
+
+Proceed only with the confirmed mapping. If implementation discovers the confirmed mapping is impossible or contradicts the model, ask before changing the business meaning.
+
 ## Header Dynamic Values
 
 Header values must be layout-contained. A long customer name, address, PIC, or document number must not change the `top` position of the table or footer.

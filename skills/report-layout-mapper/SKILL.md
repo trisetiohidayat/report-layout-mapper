@@ -226,6 +226,22 @@ Use these rules:
 
 Field suggestions are heuristic. Before writing QWeb, verify each suggested field against the target Odoo model and module code.
 
+## Mapping Approval Gate
+
+Before coding or modifying an Odoo report, present the inferred report mapping to the user and wait for confirmation unless the user explicitly says to proceed without confirmation.
+
+Use the image/PDF analysis, `manifest.json.report_blueprint`, `qweb_layout_spec`, and actual Odoo model fields to prepare a concise mapping review:
+
+- Header/body values: label or visual text, role (`static_text`, `dynamic_value`, or `candidate_value`), proposed Odoo field/helper, sample value from one record when available, `bbox_mm`, and overflow behavior.
+- Table columns: printed column header, proposed line model field/helper, width in `mm`, row height, max rows per page, and continuation-page behavior.
+- Static assets: boxes, borders, logos, watermark, fixed headings, signature labels, and whether each should be CSS/static image/static text.
+- Footer/signature behavior: source field or static signer name, whether it appears on every page or final page only, and whether totals/subtotals carry to continuation pages.
+- Uncertain items: every `candidate_value`, unreadable OCR result, ambiguous field suggestion, missing Odoo field, or business rule that cannot be verified from code/data.
+
+Ask the user to confirm or correct the mapping before implementation. Do not treat `odoo_field_suggestion` as approval. If the user has already provided an explicit mapping, still summarize it and call out only unresolved items.
+
+After confirmation, implement exactly the confirmed mapping. If a later code/database check contradicts the approved mapping, stop and ask before changing business meaning.
+
 ## Line Pagination
 
 For reports with item tables, use `--max-lines-per-page` when the template has a known row limit.
@@ -251,19 +267,22 @@ QWeb implementation should:
 6. Read `manifest.json.qweb_layout_spec` and use its CSS-ready `bbox_mm` placements for QWeb.
 7. Use `qweb_layout_spec.pages[].structural_grid` for measured box/table/signature widths before writing CSS.
 8. Verify every `odoo_field_suggestion` against actual Odoo model fields before coding.
-9. Set or review `--max-lines-per-page` for item tables and continuation pages.
-10. Generate the report.
-11. Render the generated PDF back to PNG.
-12. Run `scripts/compare_report_render.py` against `clean/page-*.png`.
-13. Inspect `compare_metrics.json` and `diff-overlay.png`.
-14. In structure mode, inspect `structure_line_deltas_mm` and fix measured millimeter coordinates or paperformat scaling before visual tweaks.
-15. Render again until title/header boxes/table/signatures align.
+9. Present the Mapping Approval Gate summary: header values, table columns, static assets, footer/signature behavior, pagination, and unresolved items.
+10. Wait for user confirmation or correction before coding unless the user explicitly instructed to proceed without confirmation.
+11. Set or review `--max-lines-per-page` for item tables and continuation pages.
+12. Generate the report.
+13. Render the generated PDF back to PNG.
+14. Run `scripts/compare_report_render.py` against `clean/page-*.png`.
+15. Inspect `compare_metrics.json` and `diff-overlay.png`.
+16. In structure mode, inspect `structure_line_deltas_mm` and fix measured millimeter coordinates or paperformat scaling before visual tweaks.
+17. Render again until title/header boxes/table/signatures align.
 
 ## Common Mistakes
 
 - Using image pixels directly in QWeb. Convert to `mm` using the manifest.
 - Treating OCR output as authoritative. Use it as a draft and verify visually.
 - Treating `odoo_field_suggestion` as final. It is only a draft mapping.
+- Skipping user approval for value/column mapping before development. Correct coordinates do not guarantee correct business fields.
 - Ignoring page size. A4 and Letter coordinates produce different `bbox_mm`.
 - Ignoring line overflow. Fixed report templates need explicit item chunking across pages.
 - Putting grid over the camera photo instead of over the rectified document.
