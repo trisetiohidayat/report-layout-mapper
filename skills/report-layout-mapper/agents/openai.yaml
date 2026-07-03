@@ -1,0 +1,4 @@
+interface:
+  display_name: "Report Layout Mapper"
+  short_description: "Map and verify report layout fidelity"
+  default_prompt: "Use $report-layout-mapper to analyze this report template, produce Odoo QWeb positioning guidance, and compare the rendered result."
